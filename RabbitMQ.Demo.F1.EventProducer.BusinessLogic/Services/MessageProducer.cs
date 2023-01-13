@@ -1,14 +1,15 @@
-﻿using RabbitMQ.Client;
-using System;
+﻿
 using System.Text;
+using RabbitMQ.Client;
+using RabbitMQ.Demo.F1.EventProducer.BusinessLogic.Models.Input;
 
-namespace Producer
+namespace RabbitMQ.Demo.F1.EventProducer.BusinessLogic.Services
 {
-    internal class Program
+    public class MessageProducer:IMessageProducer
     {
-        private static void Main(string[] args)
+        public async Task<bool> SendMessage(EventRequest request)
         {
-            var factory = new ConnectionFactory() { HostName = "localhost"};
+            var factory = new ConnectionFactory() { HostName = "localhost",UserName = "guest",Password = "guest",Port = 5672};
             using (var connection = factory.CreateConnection())
             {
                 using (var channel = connection.CreateModel())
@@ -24,15 +25,13 @@ namespace Producer
                     var body = Encoding.UTF8.GetBytes(message);
 
                     channel.BasicPublish(exchange: "",
-                                         routingKey: "hello",
-                                         basicProperties: null,
-                                         body: body);
-                    Console.WriteLine(" [x] Sent {0}", message);
+                        routingKey: "hello",
+                        basicProperties: null,
+                        body: body);
                 }
-
-                Console.WriteLine(" Press [enter] to exit.");
-                Console.ReadLine();
+                
             }
+            return true;
         }
     }
 }
